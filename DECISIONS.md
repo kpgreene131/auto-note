@@ -19,3 +19,21 @@ Each entry follows this structure:
 ---
 
 <!-- Decisions go below this line, most recent first. -->
+
+### 2026-03-12 — Rejected separate Java Spring Boot backend
+
+**Context:** A separate Java Spring Boot backend was considered as the API layer, with Next.js handling only the frontend. This would have demonstrated backend skills in a different language.
+
+**Decision:** Rejected for this project. The full Next.js stack handles both frontend and backend. Java Spring Boot will be revisited as a separate focused project later.
+
+**Tradeoff:** Gained a simpler single-stack architecture and full focus on AI integration complexity. Gave up demonstrating Java/Spring Boot skills in this project. Full-stack Next.js is more relevant for AI engineer and full-stack roles. A separate backend would have split focus between learning Java and building a complex AI application — overkill for this project's scope.
+
+See also: [ADR-001](ADR/001-nextjs-fullstack.md)
+
+### 2026-03-12 — Auto-synthesize on inactivity, not every keystroke
+
+**Context:** The app uses AI to synthesize notes automatically. A trigger strategy was needed — when should synthesis run? Triggering on every keystroke would flood the Claude API with redundant calls, driving up costs and producing noisy intermediate results.
+
+**Decision:** Auto-synthesize on inactivity using a debounced approach with smart change detection. Synthesis triggers only after the user stops typing, not on every keystroke.
+
+**Tradeoff:** Saves API costs and reduces noise from partial inputs. Users don't see synthesis results instantly while typing, but get clean results after natural pauses. Exact debounce timing and what qualifies as a "smart trigger" are not yet specified — these will be defined in a feature spec.
