@@ -20,6 +20,30 @@ Each entry follows this structure:
 
 <!-- Decisions go below this line, most recent first. -->
 
+### 2026-03-13 — Manual shadcn/ui setup due to Node 24 incompatibility
+
+**Context:** The shadcn CLI (`npx shadcn@latest init`) fails on Node.js 24 due to an ESM resolution bug in the `tinyexec` dependency. The CLI could not run at all.
+
+**Decision:** Manually installed shadcn dependencies (`class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`, `radix-ui`, `tw-animate-css`), created `components.json`, `src/lib/utils.ts`, and component files by pulling source directly from the shadcn GitHub registry.
+
+**Tradeoff:** More initial setup work, but the result is identical to what the CLI produces. Future `npx shadcn add` commands may also fail on Node 24 — components will need to be added manually until the upstream bug is fixed or Node is downgraded.
+
+### 2026-03-13 — Multi-theme system with CSS custom properties
+
+**Context:** The UI prototype started with default dark mode. User wanted the ability to switch between multiple color schemes — both light and dark variations.
+
+**Decision:** Built a 6-theme system (Sakura, Ocean, Zinc, Violet, Crimson, Teal) using CSS custom properties. Each theme defines its own full set of color variables plus surface hierarchy variables (`--surface-sidebar`, `--surface-titlebar`, `--surface-content`). Theme selection persists in localStorage. The `dark` class is toggled dynamically for Tailwind's `dark:` variant.
+
+**Tradeoff:** Custom-designed color palettes (not from a library) give full control but need manual tuning. Adding a new theme means defining ~25 CSS variables. The approach scales fine for a handful of themes.
+
+### 2026-03-13 — AppShell client component to preserve server-side layout
+
+**Context:** The sidebar collapse toggle needs shared state between the header button and the sidebar. React state (`useState`) requires a client component, but Next.js best practice keeps `layout.tsx` as a server component.
+
+**Decision:** Created `AppShell.tsx` as a client component that owns the header, sidebar, and main content structure. `layout.tsx` stays as a thin server component that renders `<AppShell>{children}</AppShell>`.
+
+**Tradeoff:** Gained the ability to add interactive layout features (sidebar toggle, theme switcher) without making the root layout a client component. The tradeoff is that the layout shell HTML ships as client JS rather than static server HTML, but this is negligible for a SPA-like app with mock data.
+
 ### 2026-03-13 — Agent-agnostic instructions via AGENTS.md
 
 **Context:** All coding agent rules lived in `CLAUDE.md`, tying repo conventions to a single tool. We want the repo to work with any AI coding agent.

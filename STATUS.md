@@ -4,33 +4,34 @@
 
 ## Where We Are
 
-Pre-implementation phase. The repo scaffold is complete — project docs, ADRs, specs folder, GitHub templates, and a Next.js starter app are all in place. Four ADRs have been approved (Next.js fullstack, Kysely, Vercel deployment, Claude API server-only). No application code has been written yet. The focus right now is on tooling, workflow infrastructure, and making two key decisions (Postgres hosting and which feature to spec first) that unblock all implementation work.
+The UI prototype (spec 002) is implemented and working. This is the first real application code — a three-panel layout (sidebar, editor, synthesis preview) with mock data, Tiptap rich text editing, and a multi-theme system. No backend, no auth, no real data yet. The next phase is connecting real infrastructure: database, auth, and the AI synthesis pipeline.
 
 ## What Was Just Done
 
-- Adopted the AGENTS.md pattern — moved all agent-agnostic rules out of CLAUDE.md into a shared AGENTS.md file, making the repo portable across AI coding tools
-- Created a separate public research repo (ai-dev-research) for documenting learnings about agentic development workflows, prompt engineering, and tool comparisons
-- Built the `/update-status` slash command (this one) for generating project status snapshots
-- Added TODO.md to the repo as the source of truth for task tracking, synced from a Claude.ai Project used for mobile capture
-- Fixed Playwright MCP config for Windows (cmd /c wrapper)
+- Implemented spec 002: full UI prototype with sidebar, Tiptap editor, and synthesis panel
+- Set up shadcn/ui manually (CLI incompatible with Node 24) — button, avatar, scroll-area components
+- Installed Tiptap (rich text editor) and react-markdown (synthesis rendering)
+- Built resizable/collapsible synthesis panel with drag-to-resize
+- Built collapsible sidebar with toggle in header
+- Added note title bar spanning editor and synthesis panel
+- Created 6-theme system (2 light, 4 dark) with palette switcher and localStorage persistence
+- Tuned dark mode surface hierarchy: header (darkest) → sidebar → titlebar → content (lightest)
+- Created AppShell client component to keep root layout as a server component
 
 ## What's Next
 
-Two decisions are blocking all implementation work and should be made soon:
-1. **Postgres hosting provider** (Supabase vs Railway vs Neon vs self-hosted) — needed before any database specs
-2. **Which feature to spec first** — this kicks off actual app development
-
-After those: fill in ARCHITECTURE.md, learn Kysely basics, and write the first feature spec.
+1. **Decide Postgres hosting provider** (#1) — blocks all database work including the data model and Kysely setup
+2. **Decide auth strategy** (#6) — blocks user-facing feature work
+3. **Define initial data model** (#5) — once Postgres hosting is decided, spec the schema and set up Kysely
+4. **Close out UI prototype issue** (#4) — commit the current work and close the issue
 
 ## Blocked / Needs Decision
 
-- **Postgres hosting provider** — can't write DB specs without knowing the hosting target
-- **Which feature to spec first** — nothing to implement until this is chosen
+- **Postgres hosting provider** (#1) — Supabase vs Railway vs Neon vs self-hosted. Needs ADR.
+- **Auth strategy** (#6) — NextAuth vs Clerk vs custom vs defer for MVP. Needs ADR.
 
 ## Open Questions
 
-- Vector embeddings for note connections — useful or scope creep?
-- Whisper API for audio upload — adds cost, demonstrates audio pipeline. Defer?
-- Weekly digest / Q&A over notes — interesting but significant complexity
-- GitHub MCP server vs `gh` CLI — which is better for Claude Code GitHub integration?
-- Claude.ai Projects API — can STATUS.md delivery be automated, or is it manual copy for now?
+- Making skills/slash commands agent-agnostic (#11)
+- Automating STATUS.md delivery to Claude.ai Project (#12)
+- Vector embeddings, Whisper API, weekly digest — deferred features, not yet decided
