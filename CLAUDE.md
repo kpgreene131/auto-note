@@ -36,3 +36,12 @@ This file defines how Claude should operate within this repository.
 5. Implement according to spec
 6. Log any decisions made in `DECISIONS.md`
 7. Update `PROMPTS.md` if any AI prompts were added or changed
+
+## External Documentation
+
+When unsure about API details, syntax, or best practices for these tools, fetch the official docs:
+
+- **Kysely**: `/kysely-docs` or fetch `https://kysely.dev/llms-full.txt`
+- **Next.js**: `/nextjs-docs` or fetch `https://nextjs.org/docs/llms-full.txt`
+
+Only fetch when genuinely uncertain or need specific details — not for every mention.
