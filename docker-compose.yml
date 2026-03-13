@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: auto-note-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: autonote
+      POSTGRES_PASSWORD: autonote_dev
+      POSTGRES_DB: autonote
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
