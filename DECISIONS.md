@@ -20,6 +20,14 @@ Each entry follows this structure:
 
 <!-- Decisions go below this line, most recent first. -->
 
+### 2026-03-13 — Agent-agnostic instructions via AGENTS.md
+
+**Context:** All coding agent rules lived in `CLAUDE.md`, tying repo conventions to a single tool. We want the repo to work with any AI coding agent.
+
+**Decision:** Moved all agent-agnostic rules to `AGENTS.md`. `CLAUDE.md` now imports `AGENTS.md` and adds only Claude-specific config (slash command skills). Other agents can read `AGENTS.md` directly.
+
+**Tradeoff:** Gained portability across coding agents and a clean separation of universal rules vs tool-specific config. Added one level of indirection for Claude (two files instead of one). Slash commands and skills still need investigation for full agent-agnostic support.
+
 ### 2026-03-12 — Rejected separate Java Spring Boot backend
 
 **Context:** A separate Java Spring Boot backend was considered as the API layer, with Next.js handling only the frontend. This would have provided a separate backend in a different language.

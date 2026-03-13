@@ -14,6 +14,21 @@ This project follows a spec-driven development workflow. No code lands without a
 
 Use conventional commits. See `CLAUDE.md` for the full list of allowed prefixes.
 
+## GitHub Issue Labels
+
+| Label | When to use |
+|-------|-------------|
+| `blocked` | Cannot proceed — waiting on a decision, dependency, or external input |
+| `feature` | New user-facing capability |
+| `bug` | Something isn't working as expected |
+| `spec` | A spec in `specs/` needs to be written or reviewed before work begins |
+| `adr` | An architecture decision record is needed — technology choice, pattern, or strategy |
+| `tooling` | Dev workflow, CLI commands, CI/CD, project infrastructure |
+| `research` | Investigation needed before a decision or implementation can happen |
+| `deferred` | Tracked for the future but not actively planned |
+
+**Combining labels:** Issues often need multiple labels. For example, a new feature that hasn't been specced yet gets `feature` + `spec`. A blocked decision about technology gets `blocked` + `adr`.
+
 ## Key Principles
 
 - Specs are the source of truth for what gets built.
