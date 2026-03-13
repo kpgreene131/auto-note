@@ -22,11 +22,11 @@ Each entry follows this structure:
 
 ### 2026-03-12 — Rejected separate Java Spring Boot backend
 
-**Context:** A separate Java Spring Boot backend was considered as the API layer, with Next.js handling only the frontend. This would have demonstrated backend skills in a different language.
+**Context:** A separate Java Spring Boot backend was considered as the API layer, with Next.js handling only the frontend. This would have provided a separate backend in a different language.
 
 **Decision:** Rejected for this project. The full Next.js stack handles both frontend and backend. Java Spring Boot will be revisited as a separate focused project later.
 
-**Tradeoff:** Gained a simpler single-stack architecture and full focus on AI integration complexity. Gave up demonstrating Java/Spring Boot skills in this project. Full-stack Next.js is more relevant for AI engineer and full-stack roles. A separate backend would have split focus between learning Java and building a complex AI application — overkill for this project's scope.
+**Tradeoff:** Gained a simpler single-stack architecture and full focus on AI integration complexity. Gave up a separate Java/Spring Boot backend for this project. A split architecture would have divided focus between learning Java and building a complex AI application — overkill for this project's scope.
 
 See also: [ADR-001](ADR/001-nextjs-fullstack.md)
 

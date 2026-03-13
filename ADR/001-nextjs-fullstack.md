@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-This project is a note-taking application with AI integration, intended as a portfolio project demonstrating engineering leadership and AI integration expertise. A full-stack framework was needed to handle both the frontend UI and server-side logic (API routes, Claude API calls, database access).
+This project is a note-taking application with AI integration. A full-stack framework was needed to handle both the frontend UI and server-side logic (API routes, Claude API calls, database access).
 
 A separate Java Spring Boot backend was considered as an alternative. This would have introduced a two-service architecture with Next.js handling the frontend and Spring Boot handling the API layer.
 
@@ -20,11 +20,11 @@ Use Next.js as the full-stack framework. All server-side logic lives in API rout
 - Single codebase and deployment unit — simpler to develop, test, and deploy
 - Server components provide SSR without additional infrastructure
 - API routes keep server-side concerns (AI calls, database access, secrets) cleanly separated from the browser
-- More relevant for AI engineer and full-stack roles than a split architecture
+- Better suited to the project's scope than a split architecture
 - Allows full focus on the AI integration and application complexity rather than inter-service concerns
 
 **Negative:**
-- Does not demonstrate backend-specific skills in a separate language/framework
+- No separation between frontend and backend technologies
 - Tightly couples frontend and backend in one deployment
 
 **Deferred:**

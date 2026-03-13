@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-The application uses Postgres as its database and needs a query layer for type-safe database access from Next.js API routes. Prisma is the most common choice in the TypeScript ecosystem. However, there is already existing experience with Prisma, and this project is a portfolio piece where demonstrating breadth of skills matters.
+The application uses Postgres as its database and needs a query layer for type-safe database access from Next.js API routes. Prisma is the most common choice in the TypeScript ecosystem. However, there is already existing experience with Prisma, and repeating the same tool offers diminishing returns when an alternative provides a different approach worth learning.
 
 ## Decision
 
@@ -19,8 +19,8 @@ Kysely is a type-safe SQL query builder. It provides full TypeScript type safety
 **Positive:**
 - Type-safe SQL without ORM abstraction — closer to the metal
 - No ORM conventions to fight against
-- Demonstrates willingness to learn new tools rather than repeating known ones
-- Stronger portfolio signal than using Prisma again (diminishing returns on existing experience)
+- Opportunity to learn a new tool rather than repeating a known one
+- Avoids diminishing returns from using Prisma again when a different approach is available
 
 **Negative:**
 - Less ecosystem support and fewer tutorials compared to Prisma
