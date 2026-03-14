@@ -47,6 +47,19 @@ export async function deleteNote(id: string): Promise<void> {
   await request<{ deleted: boolean }>(`/api/notes/${id}`, { method: 'DELETE' })
 }
 
+export async function fetchTrash(): Promise<Note[]> {
+  const data = await request<{ notes: Note[] }>('/api/notes/trash')
+  return data.notes
+}
+
+export async function restoreNote(id: string): Promise<Note> {
+  return request<Note>(`/api/notes/${id}/restore`, { method: 'POST' })
+}
+
+export async function permanentlyDeleteNote(id: string): Promise<void> {
+  await request<{ deleted: boolean }>(`/api/notes/${id}/permanent`, { method: 'DELETE' })
+}
+
 export async function fetchCurrentUser(): Promise<User> {
   return request<User>('/api/users/me')
 }

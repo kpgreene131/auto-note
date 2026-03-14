@@ -10,6 +10,7 @@ export async function GET() {
     const notes = await db.selectFrom('notes')
       .selectAll()
       .where('user_id', '=', user.id)
+      .where('deleted_at', 'is', null)
       .orderBy('updated_at', 'desc')
       .execute()
 

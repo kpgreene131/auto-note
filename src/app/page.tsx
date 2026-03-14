@@ -8,6 +8,7 @@ export default async function Home() {
   const firstNote = await db.selectFrom('notes')
     .select('id')
     .where('user_id', '=', user.id)
+    .where('deleted_at', 'is', null)
     .orderBy('updated_at', 'desc')
     .limit(1)
     .executeTakeFirst()

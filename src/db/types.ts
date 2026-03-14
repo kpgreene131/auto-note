@@ -23,6 +23,7 @@ export interface NotesTable {
   created_at: Generated<Date>
   updated_at: Generated<Date>
   synthesized_at: Date | null
+  deleted_at: Date | null
 }
 
 export type Note = Selectable<NotesTable>

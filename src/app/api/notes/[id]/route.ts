@@ -15,6 +15,7 @@ export async function GET(
       .selectAll()
       .where('id', '=', id)
       .where('user_id', '=', user.id)
+      .where('deleted_at', 'is', null)
       .executeTakeFirst()
 
     if (!note) {
@@ -47,6 +48,7 @@ export async function PUT(
       .set(fields)
       .where('id', '=', id)
       .where('user_id', '=', user.id)
+      .where('deleted_at', 'is', null)
       .returningAll()
       .executeTakeFirst()
 
@@ -70,9 +72,11 @@ export async function DELETE(
     const user = await getCurrentUser()
     const { id } = await params
 
-    const note = await db.deleteFrom('notes')
+    const note = await db.updateTable('notes')
+      .set({ deleted_at: new Date() })
       .where('id', '=', id)
       .where('user_id', '=', user.id)
+      .where('deleted_at', 'is', null)
       .returningAll()
       .executeTakeFirst()
 

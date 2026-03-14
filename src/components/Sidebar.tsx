@@ -3,12 +3,12 @@
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus, Trash2, Undo2, ChevronDown, ChevronRight } from "lucide-react"
 import { generateText } from "@tiptap/core"
 import StarterKit from "@tiptap/starter-kit"
 import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { fetchNotes, createNote, deleteNote } from "@/lib/api"
+import { fetchNotes, createNote, deleteNote, fetchTrash, restoreNote, permanentlyDeleteNote } from "@/lib/api"
 import type { Note } from "@/lib/api"
 
 function getPreview(content: unknown): string {
@@ -20,12 +20,26 @@ function getPreview(content: unknown): string {
   }
 }
 
+function getDeletedAgo(deletedAt: Date | string): string {
+  const ms = Date.now() - new Date(deletedAt).getTime()
+  const days = Math.floor(ms / (1000 * 60 * 60 * 24))
+  if (days === 0) return "Deleted today"
+  if (days === 1) return "Deleted 1 day ago"
+  return `Deleted ${days} days ago`
+}
+
 export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const [notes, setNotes] = useState<Note[]>([])
   const [loading, setLoading] = useState(true)
   const [deleteTarget, setDeleteTarget] = useState<Note | null>(null)
+
+  const [trashOpen, setTrashOpen] = useState(false)
+  const [trashNotes, setTrashNotes] = useState<Note[]>([])
+  const [trashCount, setTrashCount] = useState(0)
+  const [trashLoading, setTrashLoading] = useState(false)
+  const [permanentDeleteTarget, setPermanentDeleteTarget] = useState<Note | null>(null)
 
   const loadNotes = useCallback(async () => {
     try {
@@ -38,9 +52,32 @@ export function Sidebar() {
     }
   }, [])
 
+  const loadTrash = useCallback(async () => {
+    setTrashLoading(true)
+    try {
+      const data = await fetchTrash()
+      setTrashNotes(data)
+      setTrashCount(data.length)
+    } catch (err) {
+      console.error("Failed to fetch trash:", err)
+    } finally {
+      setTrashLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     loadNotes()
   }, [loadNotes])
+
+  // Fetch trash count on mount
+  useEffect(() => {
+    fetchTrash().then((data) => setTrashCount(data.length)).catch(() => {})
+  }, [])
+
+  // Fetch full trash when expanded
+  useEffect(() => {
+    if (trashOpen) loadTrash()
+  }, [trashOpen, loadTrash])
 
   async function handleCreate() {
     try {
@@ -57,11 +94,38 @@ export function Sidebar() {
     try {
       await deleteNote(note.id)
       await loadNotes()
+      // Refresh trash count (and list if open)
+      const data = await fetchTrash()
+      setTrashNotes(data)
+      setTrashCount(data.length)
       if (wasActive) {
         router.push("/")
       }
     } catch (err) {
       console.error("Failed to delete note:", err)
+    }
+  }
+
+  async function handleRestore(note: Note) {
+    try {
+      await restoreNote(note.id)
+      await loadNotes()
+      const data = await fetchTrash()
+      setTrashNotes(data)
+      setTrashCount(data.length)
+    } catch (err) {
+      console.error("Failed to restore note:", err)
+    }
+  }
+
+  async function handlePermanentDelete(note: Note) {
+    try {
+      await permanentlyDeleteNote(note.id)
+      const data = await fetchTrash()
+      setTrashNotes(data)
+      setTrashCount(data.length)
+    } catch (err) {
+      console.error("Failed to permanently delete note:", err)
     }
   }
 
@@ -124,15 +188,81 @@ export function Sidebar() {
         </nav>
       </div>
 
+      {/* Recently Deleted — sticky bottom */}
+      <div className="shrink-0 border-t border-border">
+        <button
+          onClick={() => setTrashOpen((prev) => !prev)}
+          className="flex items-center w-full px-3 py-2 text-sm text-muted-foreground hover:bg-accent transition-colors gap-1.5"
+        >
+          {trashOpen ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />}
+          <span>Recently Deleted</span>
+          {trashCount > 0 && (
+            <span className="ml-auto text-xs bg-muted px-1.5 py-0.5 rounded-full">
+              {trashCount}
+            </span>
+          )}
+        </button>
+
+        {trashOpen && (
+          <div className="max-h-[40vh] overflow-y-auto">
+            {trashLoading ? (
+              <div className="p-3 text-xs text-muted-foreground">Loading...</div>
+            ) : trashNotes.length === 0 ? (
+              <div className="p-3 text-xs text-muted-foreground">No deleted notes</div>
+            ) : (
+              trashNotes.map((note) => (
+                <div
+                  key={note.id}
+                  className="flex items-center gap-2 px-3 py-2 border-t border-border text-sm"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm truncate">{note.title ?? "Untitled"}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {note.deleted_at ? getDeletedAgo(note.deleted_at) : ""}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleRestore(note)}
+                    className="p-1 rounded text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                    aria-label={`Restore ${note.title ?? "note"}`}
+                  >
+                    <Undo2 className="size-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setPermanentDeleteTarget(note)}
+                    className="p-1 rounded text-muted-foreground/50 hover:bg-destructive/10 hover:text-destructive transition-colors"
+                    aria-label={`Permanently delete ${note.title ?? "note"}`}
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+
       <ConfirmDialog
         open={deleteTarget !== null}
         onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}
         title="Delete note"
-        description={`Are you sure you want to delete "${deleteTarget?.title ?? "Untitled"}"? This action cannot be undone.`}
+        description={`Are you sure you want to delete "${deleteTarget?.title ?? "Untitled"}"? It will be moved to Recently Deleted.`}
         confirmLabel="Delete"
         destructive
         onConfirm={() => {
           if (deleteTarget) handleDelete(deleteTarget)
+        }}
+      />
+
+      <ConfirmDialog
+        open={permanentDeleteTarget !== null}
+        onOpenChange={(open) => { if (!open) setPermanentDeleteTarget(null) }}
+        title="Delete forever"
+        description={`Permanently delete "${permanentDeleteTarget?.title ?? "Untitled"}"? This cannot be undone.`}
+        confirmLabel="Delete forever"
+        destructive
+        onConfirm={() => {
+          if (permanentDeleteTarget) handlePermanentDelete(permanentDeleteTarget)
         }}
       />
     </>
