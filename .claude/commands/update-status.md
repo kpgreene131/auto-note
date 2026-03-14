@@ -7,7 +7,7 @@ Generate a fresh STATUS.md summarizing the current state of the project.
 3. Run `git diff --stat HEAD~5` for a quick sense of recent file changes
 4. Run `gh issue list --state open` for current open issues and their labels
 5. Run `gh issue list --state closed --limit 5` for recently closed issues
-6. Read `DECISIONS.md` (just the most recent entries) for any new decisions logged
+6. Read recent ADRs in `ADR/` for any new decisions logged
 
 ## Output format
 
@@ -31,7 +31,7 @@ The single most important next action and why it matters. If there are 2-3 thing
 Anything that cannot proceed without user input. Pull from GitHub issues labeled `blocked`. If nothing is blocked, say so.
 
 ## Open Questions
-Tracked but not yet decided. Pull from GitHub issues labeled `research` and any open questions in DECISIONS.md. Keep brief — these are pointers, not full analysis.
+Tracked but not yet decided. Pull from GitHub issues labeled `research` and any open questions in ADRs. Keep brief — these are pointers, not full analysis.
 ```
 
 ## Rules

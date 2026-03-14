@@ -34,7 +34,7 @@ This file defines how AI coding agents should operate within this repository.
 3. Read existing code in the affected area
 4. Propose interface changes before implementation
 5. Implement according to spec
-6. Log any decisions made in `DECISIONS.md`
+6. Log any decisions made as ADRs in `ADR/`
 7. Update `PROMPTS.md` if any AI prompts were added or changed
 
 ## External Documentation

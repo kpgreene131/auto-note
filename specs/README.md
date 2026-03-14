@@ -22,7 +22,7 @@ A spec is considered done when:
 
 - All acceptance criteria are met
 - Open questions are resolved (or explicitly deferred with rationale)
-- Decisions made during implementation are logged in `DECISIONS.md` or as ADRs
+- Decisions made during implementation are logged as ADRs in `ADR/`
 - Code is merged and the spec status is updated to `completed`
 
 ## Statuses

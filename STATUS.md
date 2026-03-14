@@ -1,36 +1,34 @@
 # Project Status
 
-**Last updated:** 2026-03-13
+**Last updated:** 2026-03-14
 
 ## Where We Are
 
-The project has a working UI prototype and a real database schema. The three-panel layout (sidebar, Tiptap editor, synthesis preview) runs on mock data. Kysely is set up, local Postgres runs via Docker Compose, and the initial data model (users, notes, tags, note_tags) is migrated and verified. The next phase is connecting the UI to real data through API routes, then wiring up AI synthesis.
+The app has a fully functional note-taking UI backed by a real Postgres database. Users can create, edit, and delete notes — delete is now soft-delete with a "Recently Deleted" trash section that supports restore and permanent delete. The editor auto-saves, themes persist to the database, and the sidebar reflects live data. What's missing: authentication (single hardcoded user), production hosting, CI/CD, and the core AI synthesis feature (the panel exists but doesn't call any AI yet).
 
 ## What Was Just Done
 
-- Implemented spec 003: initial data model with four tables (users, notes, tags, note_tags)
-- Created Kysely migration (`001_initial_schema.ts`) with correct types, FKs, cascade deletes, and unique constraint on tags
-- Created migration runner (`src/db/migrate.ts`) with `db:migrate` script
-- Updated `src/db/types.ts` with full Database interface and all Selectable/Insertable/Updateable exports
-- Installed `tsx` for running TypeScript scripts outside Next.js
-- Verified migration runs cleanly, tables exist, cascade deletes work
-- Created GitHub issue #13: Wire up API routes for notes CRUD
-- Closed UI prototype issue (#4)
+- **Spec 004 — API routes:** Built full CRUD for notes and user preferences (`/api/notes`, `/api/notes/[id]`, `/api/users/me`)
+- **Spec 005 — Wire UI to API:** Replaced all mock data with real API calls. Editor auto-saves with debounce, sidebar fetches/creates/deletes notes, theme and user preferences persist to DB. Deleted the mock data layer.
+- **Spec 006 — Soft delete and trash:** Notes soft-delete via `deleted_at` column. Collapsible "Recently Deleted" section in sidebar with restore and permanent delete. Auto-purge after 30 days on trash access.
+- Closed issues: #13 (API routes), #7 (note input — split out AI synthesis to #14), #2 (Kysely basics)
 
 ## What's Next
 
-1. **Wire up API routes for notes CRUD** (#13) — Replace mock data with real database queries. This is the bridge between the working UI and the real schema. Single-user MVP (no auth gating yet).
-2. **Decide auth strategy** (#6) — Needed before multi-user support. Blocking real user creation.
-3. **Core AI synthesis feature** (#7) — The main value prop. Depends on API routes being in place.
+In priority order:
+
+1. **Auth strategy** (#6) — Decide and implement an auth provider. Currently single-user with a hardcoded DB user. Needed before anything can go to production.
+2. **Postgres hosting** (#1) — Pick a provider (Neon, Supabase, etc.) so we have a production database. Write ADR.
+3. **Vercel deployment and CI/CD** (#10, #9, #8) — Get the app deployed with environment/secrets management and a basic pipeline.
+4. **AI synthesis** (#14) — The core value prop. Wire the synthesis panel to Claude API. Depends on secrets management being in place for the API key.
 
 ## Blocked / Needs Decision
 
-- **Postgres hosting provider** (#1) — Deferred for now; developing against local Docker Postgres. Needs ADR before deployment.
-- **Auth strategy** (#6) — NextAuth vs Clerk vs custom vs defer. Needs ADR. Blocks multi-user features.
+- **Auth strategy** (#6) — Needs ADR. NextAuth vs Clerk vs other. Blocks multi-user and production deployment.
+- **Postgres hosting** (#1) — Needs ADR. Developing against local Docker Postgres for now.
 
 ## Open Questions
 
 - Making skills/slash commands agent-agnostic (#11)
 - Automating STATUS.md delivery to Claude.ai Project (#12)
-- Learn Kysely basics (#2) — ongoing as we build real queries
-- Indexes beyond PKs — wait until query patterns emerge (noted in spec 003)
+- Indexes beyond PKs — deferred until query patterns emerge (noted in spec 003)

@@ -69,6 +69,13 @@ export function Sidebar() {
     loadNotes()
   }, [loadNotes])
 
+  // Re-fetch when a note is saved (title or content change)
+  useEffect(() => {
+    const handler = () => loadNotes()
+    window.addEventListener('note-updated', handler)
+    return () => window.removeEventListener('note-updated', handler)
+  }, [loadNotes])
+
   // Fetch trash count on mount
   useEffect(() => {
     fetchTrash().then((data) => setTrashCount(data.length)).catch(() => {})

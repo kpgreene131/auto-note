@@ -12,6 +12,6 @@ Pre-implementation — establishing process and documentation scaffold.
 - `ADR/` — Architecture Decision Records
 - `ARCHITECTURE.md` — System architecture (TBD)
 - `CONTRIBUTING.md` — Development workflow
-- `DECISIONS.md` — Running decision log
+- `ADR/` — Architecture Decision Records (all decisions logged here)
 - `PROMPTS.md` — AI prompt iteration log
 - `STYLE.md` — Visual and UI style guide

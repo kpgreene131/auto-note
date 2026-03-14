@@ -4,6 +4,7 @@ import { useEffect, useRef, useCallback } from "react"
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { updateNote } from "@/lib/api"
+import { dispatchNoteUpdated } from "@/lib/events"
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error"
 
@@ -24,6 +25,7 @@ export function NoteEditor({ noteId, content, onSaveStatusChange }: NoteEditorPr
     try {
       await updateNote(noteIdRef.current, { content: json })
       onSaveStatusChange("saved")
+      dispatchNoteUpdated()
       savedClearTimeout.current = setTimeout(() => onSaveStatusChange("idle"), 2000)
     } catch {
       onSaveStatusChange("error")

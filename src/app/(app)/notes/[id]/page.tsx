@@ -6,6 +6,7 @@ import { NoteEditor, type SaveStatus } from "@/components/NoteEditor"
 import { SynthesisPanel } from "@/components/SynthesisPanel"
 import { Button } from "@/components/ui/button"
 import { fetchNote, updateNote } from "@/lib/api"
+import { dispatchNoteUpdated } from "@/lib/events"
 import type { Note } from "@/lib/api"
 
 export default function NotePage({
@@ -43,6 +44,7 @@ export default function NotePage({
       try {
         await updateNote(id, { title: newTitle || null })
         setSaveStatus("saved")
+        dispatchNoteUpdated()
         titleClearTimeout.current = setTimeout(() => setSaveStatus("idle"), 2000)
       } catch {
         setSaveStatus("error")

@@ -16,7 +16,7 @@ export async function GET() {
   }
 }
 
-/** Update display name or color theme. Validates theme against known theme IDs. */
+/** Update color theme. Clerk owns display_name. */
 export async function PATCH(request: Request) {
   try {
     const user = await getCurrentUser()
@@ -29,17 +29,12 @@ export async function PATCH(request: Request) {
       )
     }
 
-    const fields: Record<string, unknown> = { updated_at: new Date() }
-    if (body.display_name !== undefined) fields.display_name = body.display_name
-    if (body.color_theme !== undefined) fields.color_theme = body.color_theme
-
-    if (Object.keys(fields).length === 1) {
-      // Only updated_at, no actual changes requested
+    if (body.color_theme === undefined) {
       return NextResponse.json(user)
     }
 
     const updated = await db.updateTable('users')
-      .set(fields)
+      .set({ color_theme: body.color_theme, updated_at: new Date() })
       .where('id', '=', user.id)
       .returningAll()
       .executeTakeFirstOrThrow()

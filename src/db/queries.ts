@@ -1,12 +1,22 @@
+import { auth } from '@clerk/nextjs/server'
 import { db } from '.'
 
 export async function getCurrentUser() {
-  const user = await db.selectFrom('users')
+  const { userId } = await auth()
+  if (!userId) throw new Error('Not authenticated')
+
+  let user = await db.selectFrom('users')
     .selectAll()
-    .limit(1)
+    .where('clerk_id', '=', userId)
     .executeTakeFirst()
 
-  if (!user) throw new Error('No user found — run db:seed')
+  // Auto-provision on first sign-in
+  if (!user) {
+    user = await db.insertInto('users')
+      .values({ clerk_id: userId })
+      .returningAll()
+      .executeTakeFirstOrThrow()
+  }
 
   return user
 }
