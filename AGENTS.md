@@ -43,5 +43,7 @@ When unsure about API details, syntax, or best practices for these tools, fetch 
 
 - **Kysely**: fetch `https://kysely.dev/llms-full.txt`
 - **Next.js**: fetch `https://nextjs.org/docs/llms-full.txt`
+- **Vercel**: fetch `https://vercel.com/docs/llms-full.txt` (or any page as `.md`, e.g. `https://vercel.com/docs/deployments.md`)
+- **Neon**: fetch `https://neon.com/docs/llms-full.txt` (or any page as `.md`, e.g. `https://neon.com/docs/extensions/pgvector.md`)
 
 Only fetch when genuinely uncertain or need specific details — not for every mention.
