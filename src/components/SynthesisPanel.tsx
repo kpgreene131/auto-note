@@ -4,7 +4,7 @@ import { useCallback, useRef, useEffect } from "react"
 import ReactMarkdown from "react-markdown"
 
 interface SynthesisPanelProps {
-  markdown: string
+  markdown: string | null
   collapsed: boolean
   onCollapsedChange: (collapsed: boolean) => void
 }
@@ -85,7 +85,11 @@ export function SynthesisPanel({
       />
 
       <div className="flex-1 min-h-0 p-4 overflow-y-auto prose prose-sm dark:prose-invert max-w-none">
-        <ReactMarkdown>{markdown}</ReactMarkdown>
+        {markdown ? (
+          <ReactMarkdown>{markdown}</ReactMarkdown>
+        ) : (
+          <p className="text-muted-foreground text-sm italic">No synthesis yet</p>
+        )}
       </div>
     </aside>
   )

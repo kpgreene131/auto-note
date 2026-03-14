@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Palette } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { themes, DEFAULT_THEME } from "@/lib/themes"
+import { fetchCurrentUser, updateCurrentUser } from "@/lib/api"
 
 function applyTheme(themeId: string) {
   const theme = themes.find((t) => t.id === themeId)
@@ -27,11 +28,19 @@ export function ThemeSwitcher() {
   const [current, setCurrent] = useState(DEFAULT_THEME)
   const ref = useRef<HTMLDivElement>(null)
 
-  // Load saved theme on mount
+  // Load saved theme on mount, then reconcile with API
   useEffect(() => {
     const saved = localStorage.getItem("auto-note-theme") || DEFAULT_THEME
     setCurrent(saved)
     applyTheme(saved)
+
+    fetchCurrentUser().then((user) => {
+      if (user.color_theme && user.color_theme !== saved) {
+        setCurrent(user.color_theme)
+        applyTheme(user.color_theme)
+        localStorage.setItem("auto-note-theme", user.color_theme)
+      }
+    }).catch(() => {})
   }, [])
 
   // Close on outside click
@@ -50,6 +59,7 @@ export function ThemeSwitcher() {
     applyTheme(themeId)
     localStorage.setItem("auto-note-theme", themeId)
     setOpen(false)
+    updateCurrentUser({ color_theme: themeId }).catch(() => {})
   }
 
   return (

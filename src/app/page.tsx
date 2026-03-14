@@ -1,9 +1,19 @@
 import { redirect } from "next/navigation"
-import { mockNotes } from "@/mock/notes"
+import { db } from "@/db"
+import { getCurrentUser } from "@/db/queries"
 
-export default function Home() {
-  if (mockNotes.length > 0) {
-    redirect(`/notes/${mockNotes[0].id}`)
+export default async function Home() {
+  const user = await getCurrentUser()
+
+  const firstNote = await db.selectFrom('notes')
+    .select('id')
+    .where('user_id', '=', user.id)
+    .orderBy('updated_at', 'desc')
+    .limit(1)
+    .executeTakeFirst()
+
+  if (firstNote) {
+    redirect(`/notes/${firstNote.id}`)
   }
 
   return (

@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       .values({
         user_id: user.id,
         title: body.title ?? null,
-        content: body.content ?? null,
+        content: body.content ?? JSON.stringify({ type: 'doc', content: [] }),
       })
       .returningAll()
       .executeTakeFirstOrThrow()
