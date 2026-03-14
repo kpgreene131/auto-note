@@ -20,6 +20,22 @@ Each entry follows this structure:
 
 <!-- Decisions go below this line, most recent first. -->
 
+### 2026-03-13 — Local Postgres for development, hosting decision deferred
+
+**Context:** Issue #1 (Postgres hosting provider) was blocking all database work. We needed to start building the data layer without committing to a production host.
+
+**Decision:** Develop against the local Docker Compose Postgres instance (`docker-compose.yml`). Defer the hosting provider ADR until we're closer to deployment.
+
+**Tradeoff:** Unblocks Kysely setup, data model, and all backend work immediately. The hosting decision still needs to happen before deploy, and some providers (e.g., Supabase) may offer features (auth, connection pooling) that affect architecture. Accepted that risk to keep moving.
+
+### 2026-03-13 — Initial data model: users, notes, tags (spec 003)
+
+**Context:** Needed a real schema to replace mock data. Designed through conversation covering storage formats, tag architecture, and Postgres best practices.
+
+**Decision:** Four tables — `users` (UUID PK, display_name, color_theme), `notes` (UUID PK, jsonb content for Tiptap, text synthesis as markdown), `tags` (serial PK, user-scoped), `note_tags` (many-to-many join). Key choices: `jsonb` for Tiptap's ProseMirror document format, `text` over `varchar(n)`, `timestamptz` everywhere, no Postgres enums for theme (validated in app code), user-scoped tags for future LLM auto-tagging.
+
+**Tradeoff:** Designed for what we need now. Deferred vector embeddings (pgvector), user context for LLM, and auto-tagging behavior to future specs — all are additive and won't require reworking this schema. Full details in [spec 003](specs/003-initial-data-model.md).
+
 ### 2026-03-13 — Manual shadcn/ui setup due to Node 24 incompatibility
 
 **Context:** The shadcn CLI (`npx shadcn@latest init`) fails on Node.js 24 due to an ESM resolution bug in the `tinyexec` dependency. The CLI could not run at all.

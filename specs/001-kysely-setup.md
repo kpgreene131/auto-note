@@ -2,7 +2,7 @@
 
 ## Status
 
-proposed
+in-progress
 
 ## Context
 
@@ -120,7 +120,9 @@ Never hardcode connection strings. Use `.env.local` for development, Vercel envi
 
 ## Decision Log
 
-_(Decisions made during implementation will be logged here)_
+- **Connection pooling:** `max: 10` is fine for local dev. Revisit pool size and consider an external pooler (PgBouncer or provider-managed) when deploying to serverless. — 2026-03-13
+- **NotesTable is a placeholder:** The schema in `types.ts` exists only to validate the Kysely wiring. Real data model design happens in issue #5. — 2026-03-13
+- **Local Postgres first:** Using Docker Compose (`docker-compose.yml`) for development. Hosting provider decision (#1) deferred. — 2026-03-13
 
 ## References
 
