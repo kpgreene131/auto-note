@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:migrate": "tsx --env-file=.env.local src/db/migrate.ts"
+    "db:migrate": "tsx --env-file=.env.local src/db/migrate.ts",
+    "db:seed": "tsx --env-file=.env.local src/db/seed.ts"
   },
   "dependencies": {
     "@tiptap/pm": "^3.20.1",
