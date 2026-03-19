@@ -1,4 +1,5 @@
 import type { Note, User } from '@/db/types'
+import type { SynthesisResponse } from '@/lib/ai/types'
 
 export type { Note, User }
 
@@ -67,6 +68,17 @@ export async function fetchCurrentUser(): Promise<User> {
 export async function updateCurrentUser(body: { display_name?: string; color_theme?: string }): Promise<User> {
   return request<User>('/api/users/me', {
     method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+}
+
+export async function synthesizeNote(id: string, body: {
+  content: unknown
+  questionContext?: { text: string; answer?: string }
+}): Promise<SynthesisResponse> {
+  return request<SynthesisResponse>(`/api/notes/${id}/synthesize`, {
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })

@@ -5,6 +5,7 @@ import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { updateNote } from "@/lib/api"
 import { dispatchNoteUpdated } from "@/lib/events"
+import { AI_CONFIG } from "@/lib/ai/config"
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error"
 
@@ -12,13 +13,19 @@ interface NoteEditorProps {
   noteId: string
   content: unknown
   onSaveStatusChange: (status: SaveStatus) => void
+  onSynthesisRequest?: (content: unknown) => void
 }
 
-export function NoteEditor({ noteId, content, onSaveStatusChange }: NoteEditorProps) {
+export function NoteEditor({ noteId, content, onSaveStatusChange, onSynthesisRequest }: NoteEditorProps) {
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const savedClearTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const noteIdRef = useRef(noteId)
   noteIdRef.current = noteId
+  const lastSynthesizedCharCount = useRef(0)
+  const synthesisTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pendingSynthesisJson = useRef<unknown>(null)
+  const onSynthesisRequestRef = useRef(onSynthesisRequest)
+  onSynthesisRequestRef.current = onSynthesisRequest
 
   const save = useCallback(async (json: unknown) => {
     onSaveStatusChange("saving")
@@ -39,7 +46,27 @@ export function NoteEditor({ noteId, content, onSaveStatusChange }: NoteEditorPr
     onUpdate: ({ editor }) => {
       if (saveTimeout.current) clearTimeout(saveTimeout.current)
       if (savedClearTimeout.current) clearTimeout(savedClearTimeout.current)
-      saveTimeout.current = setTimeout(() => save(editor.getJSON()), 1000)
+
+      const json = editor.getJSON()
+      saveTimeout.current = setTimeout(() => save(json), 1000)
+
+      // Check synthesis trigger: delta threshold + typing pause
+      const currentChars = editor.getText().length
+      const delta = currentChars - lastSynthesizedCharCount.current
+      const threshold = Math.max(AI_CONFIG.synthesisDeltaMin, currentChars * AI_CONFIG.synthesisDeltaRatio)
+
+      // Always clear pending synthesis timer on new keystroke
+      if (synthesisTimeout.current) clearTimeout(synthesisTimeout.current)
+
+      if (currentChars >= AI_CONFIG.synthesisMinChars && delta >= threshold) {
+        // Delta threshold met — wait for typing pause before firing
+        pendingSynthesisJson.current = json
+        synthesisTimeout.current = setTimeout(() => {
+          lastSynthesizedCharCount.current = currentChars
+          onSynthesisRequestRef.current?.(pendingSynthesisJson.current)
+          pendingSynthesisJson.current = null
+        }, AI_CONFIG.synthesisTypingPauseMs)
+      }
     },
   })
 
@@ -47,14 +74,40 @@ export function NoteEditor({ noteId, content, onSaveStatusChange }: NoteEditorPr
   useEffect(() => {
     if (editor && content !== undefined) {
       editor.commands.setContent(content as Parameters<typeof editor.commands.setContent>[0])
+      // Reset synthesis tracking for new note
+      lastSynthesizedCharCount.current = 0
     }
   }, [editor, noteId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Page leave: flush any pending save immediately
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (!editor) return
+      // If there's a pending save timeout, clear it and fire save now
+      if (saveTimeout.current) {
+        clearTimeout(saveTimeout.current)
+        saveTimeout.current = null
+        const json = editor.getJSON()
+        // Use keepalive fetch for reliable delivery during page unload
+        fetch(`/api/notes/${noteIdRef.current}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: json }),
+          keepalive: true,
+        })
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [editor])
 
   // Cleanup timeouts
   useEffect(() => {
     return () => {
       if (saveTimeout.current) clearTimeout(saveTimeout.current)
       if (savedClearTimeout.current) clearTimeout(savedClearTimeout.current)
+      if (synthesisTimeout.current) clearTimeout(synthesisTimeout.current)
     }
   }, [])
 

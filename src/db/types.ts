@@ -6,6 +6,7 @@ export interface UsersTable {
   clerk_id: string | null
   display_name: string | null
   color_theme: Generated<string>    // default 'theme-dark'
+  context_profile: string | null
   created_at: Generated<Date>
   updated_at: Generated<Date>
 }
