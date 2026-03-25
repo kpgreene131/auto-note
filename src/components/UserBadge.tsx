@@ -6,12 +6,12 @@ import { Show, UserButton, SignInButton } from "@clerk/nextjs"
 
 export function UserBadge() {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3">
       <Link
         href="/settings"
-        className="text-muted-foreground hover:text-foreground transition-colors"
+        className="inline-flex items-center justify-center size-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
       >
-        <Settings className="size-5" />
+        <Settings className="size-4" />
       </Link>
       <Show when="signed-in">
         <UserButton />

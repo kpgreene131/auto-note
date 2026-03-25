@@ -5,6 +5,7 @@ import { ChevronRight, ChevronLeft } from "lucide-react"
 import { NoteEditor, type SaveStatus } from "@/components/NoteEditor"
 import { SynthesisPanel } from "@/components/SynthesisPanel"
 import { Button } from "@/components/ui/button"
+import { useIsMobile } from "@/hooks/useMediaQuery"
 import { fetchNote, updateNote, synthesizeNote } from "@/lib/api"
 import { dispatchNoteUpdated } from "@/lib/events"
 import type { Note } from "@/lib/api"
@@ -16,6 +17,7 @@ export default function NotePage({
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
+  const isMobile = useIsMobile()
   const [note, setNote] = useState<Note | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -154,7 +156,7 @@ export default function NotePage({
   if (loading) {
     return (
       <div className="flex flex-col h-full">
-        <div className="flex items-center h-10 px-4 border-b border-border shrink-0" style={{ backgroundColor: "var(--surface-titlebar)" }}>
+        <div className="flex items-center h-12 px-4 border-b border-border shrink-0" style={{ backgroundColor: "var(--surface-titlebar)" }}>
           <div className="h-4 w-48 bg-muted animate-pulse rounded" />
         </div>
         <div className="flex-1 p-4" style={{ backgroundColor: "var(--surface-content)" }}>
@@ -178,7 +180,7 @@ export default function NotePage({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center h-10 px-4 border-b border-border shrink-0 gap-2" style={{ backgroundColor: "var(--surface-titlebar)" }}>
+      <div className="flex items-center h-12 px-4 border-b border-border shrink-0 gap-2" style={{ backgroundColor: "var(--surface-titlebar)" }}>
         <div
           ref={titleRef}
           contentEditable
@@ -195,20 +197,22 @@ export default function NotePage({
             {saveStatus === "error" && "Save failed"}
           </span>
         )}
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          onClick={toggleSynthesis}
-          aria-label={
-            synthesisCollapsed ? "Show synthesis" : "Hide synthesis"
-          }
-        >
-          {synthesisCollapsed ? (
-            <ChevronLeft className="size-4" />
-          ) : (
-            <ChevronRight className="size-4" />
-          )}
-        </Button>
+        {!isMobile && (
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            onClick={toggleSynthesis}
+            aria-label={
+              synthesisCollapsed ? "Show synthesis" : "Hide synthesis"
+            }
+          >
+            {synthesisCollapsed ? (
+              <ChevronLeft className="size-4" />
+            ) : (
+              <ChevronRight className="size-4" />
+            )}
+          </Button>
+        )}
       </div>
 
       <div className="flex flex-1 min-h-0">
