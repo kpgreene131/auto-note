@@ -91,12 +91,12 @@ export function SynthesisPanel({
     setShowOtherInput(false)
   }, [question?.text])
 
-  // Auto-peek when synthesis starts loading from collapsed state
+  // Auto-peek when synthesis starts loading or content exists
   useEffect(() => {
-    if (isMobile && loading && sheetState === "collapsed") {
+    if (isMobile && sheetState === "collapsed" && (loading || markdown)) {
       setSheetState("peek")
     }
-  }, [isMobile, loading, sheetState])
+  }, [isMobile, loading, markdown, sheetState])
 
   // Bottom sheet touch handlers
   const handleSheetTouchStart = useCallback((e: React.TouchEvent) => {

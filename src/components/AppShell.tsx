@@ -45,9 +45,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     ),
   })
 
-  // Swipe left on sidebar to close
-  const sidebarRef = useRef<HTMLElement>(null)
-  useSwipeGesture(sidebarRef, {
+  // Swipe left anywhere to close sidebar
+  useSwipeGesture(containerRef, {
     direction: "horizontal",
     threshold: 50,
     enabled: isMobile && mobileSidebarOpen,
@@ -105,7 +104,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {isMobile && (
           <>
             <aside
-              ref={sidebarRef}
               className={`absolute inset-y-0 left-0 w-64 z-30 border-r border-border flex flex-col transition-transform duration-200 ease-out ${
                 mobileSidebarOpen
                   ? "translate-x-0"
