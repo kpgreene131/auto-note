@@ -3,7 +3,7 @@
 import { use, useState, useEffect, useCallback, useRef } from "react"
 import { ChevronRight, ChevronLeft } from "lucide-react"
 import { NoteEditor, type SaveStatus } from "@/components/NoteEditor"
-import { SynthesisPanel } from "@/components/SynthesisPanel"
+import { SynthesisPanel, type BottomSheetState, getSheetHeight } from "@/components/SynthesisPanel"
 import { Button } from "@/components/ui/button"
 import { useIsMobile } from "@/hooks/useMediaQuery"
 import { fetchNote, updateNote, synthesizeNote } from "@/lib/api"
@@ -26,6 +26,7 @@ export default function NotePage({
   const [synthesisLoading, setSynthesisLoading] = useState(false)
   const [synthesisMarkdown, setSynthesisMarkdown] = useState<string | null>(null)
   const [questionState, setQuestionState] = useState<QuestionState | null>(null)
+  const [synthesisSheetState, setSynthesisSheetState] = useState<BottomSheetState>("collapsed")
   const titleTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const titleClearTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const titleRef = useRef<HTMLDivElement>(null)
@@ -38,6 +39,7 @@ export default function NotePage({
     setSaveStatus("idle")
     setSynthesisMarkdown(null)
     setQuestionState(null)
+    setSynthesisSheetState("collapsed")
 
     fetchNote(id)
       .then((n) => {
@@ -153,6 +155,13 @@ export default function NotePage({
     setSaveStatus(status)
   }, [])
 
+  // Shrink synthesis sheet when user interacts with editor (focus or typing)
+  const handleEditorActivity = useCallback(() => {
+    if (isMobile && (synthesisSheetState === "large" || synthesisSheetState === "full")) {
+      setSynthesisSheetState("small")
+    }
+  }, [isMobile, synthesisSheetState])
+
   if (loading) {
     return (
       <div className="flex flex-col h-full">
@@ -216,12 +225,13 @@ export default function NotePage({
       </div>
 
       <div className="flex flex-1 min-h-0">
-        <div className="flex-1 p-4 overflow-y-auto" style={{ backgroundColor: "var(--surface-content)" }}>
+        <div className={`p-4 overflow-y-auto ${isMobile ? "transition-[height] duration-200 ease-out" : "flex-1"}`} style={{ backgroundColor: "var(--surface-content)", ...(isMobile ? { height: `calc(100dvh - 6rem - ${getSheetHeight(synthesisSheetState)})` } : {}) }}>
           <NoteEditor
             noteId={id}
             content={note.content}
             onSaveStatusChange={handleEditorSaveStatus}
             onSynthesisRequest={handleSynthesisRequest}
+            onActivity={handleEditorActivity}
           />
         </div>
         <SynthesisPanel
@@ -232,6 +242,8 @@ export default function NotePage({
           question={questionState}
           onQuestionAnswer={handleQuestionAnswer}
           onQuestionDismiss={handleQuestionDismiss}
+          sheetState={synthesisSheetState}
+          onSheetStateChange={setSynthesisSheetState}
         />
       </div>
     </div>

@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useRef, useCallback } from "react"
 
 interface SwipeConfig {
@@ -87,11 +89,13 @@ export function useSwipeGesture(
     el.addEventListener("touchstart", handleTouchStart, { passive: true })
     el.addEventListener("touchmove", handleTouchMove, { passive: true })
     el.addEventListener("touchend", handleTouchEnd, { passive: true })
+    el.addEventListener("touchcancel", handleTouchEnd, { passive: true })
 
     return () => {
       el.removeEventListener("touchstart", handleTouchStart)
       el.removeEventListener("touchmove", handleTouchMove)
       el.removeEventListener("touchend", handleTouchEnd)
+      el.removeEventListener("touchcancel", handleTouchEnd)
     }
   }, [ref, enabled, handleTouchStart, handleTouchMove, handleTouchEnd])
 }

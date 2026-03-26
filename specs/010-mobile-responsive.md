@@ -2,7 +2,7 @@
 
 ## Status
 
-proposed
+completed
 
 ## Context
 
@@ -113,23 +113,23 @@ Possibly new:
 
 ## Acceptance Criteria
 
-- [ ] Below 768px viewport, synthesis panel renders as a bottom sheet instead of right sidebar
-- [ ] Bottom sheet has three states: collapsed, peek, expanded
-- [ ] Swipe up on peek → expand, swipe down on expanded → peek
-- [ ] Bottom sheet is draggable to resize between peek and full height
-- [ ] Auto-peek when synthesis starts loading from collapsed state
-- [ ] Peek bar shows one-line synthesis preview or loading indicator
-- [ ] Chevron toggle hidden on mobile viewports
-- [ ] Notes sidebar is off-screen by default on mobile
-- [ ] Hamburger icon in header opens sidebar on mobile
-- [ ] Swipe from left edge opens sidebar on mobile
-- [ ] Sidebar pushes main content right when open (not overlay)
-- [ ] Tapping main content area auto-closes sidebar (mobile only)
-- [ ] Note title bar height increased to 48px on all viewports
-- [ ] Header icons have adequate touch targets (≥44px)
-- [ ] Settings gear spacing fixed relative to profile picture
-- [ ] Desktop layout unchanged — all changes are additive via responsive breakpoints
-- [ ] Horizontal tablet (landscape) uses desktop layout
+- [x] Below 768px viewport, synthesis panel renders as a bottom sheet instead of right sidebar
+- [x] Bottom sheet has three states: collapsed, peek, expanded *(revised to four states in [Spec 011](./011-bottom-sheet-gestures.md))*
+- [x] Swipe up on peek → expand, swipe down on expanded → peek *(revised with velocity-based gesture model in Spec 011)*
+- [x] Bottom sheet is draggable to resize between peek and full height
+- [x] Auto-peek when synthesis starts loading from collapsed state
+- [x] Peek bar shows one-line synthesis preview or loading indicator
+- [x] Chevron toggle hidden on mobile viewports
+- [x] Notes sidebar is off-screen by default on mobile
+- [x] Hamburger icon in header opens sidebar on mobile
+- [x] Swipe from left edge opens sidebar on mobile
+- [x] Sidebar pushes main content right when open (not overlay)
+- [x] Tapping main content area auto-closes sidebar (mobile only)
+- [x] Note title bar height increased to 48px on all viewports
+- [x] Header icons have adequate touch targets (≥44px)
+- [x] Settings gear spacing fixed relative to profile picture
+- [x] Desktop layout unchanged — all changes are additive via responsive breakpoints
+- [x] Horizontal tablet (landscape) uses desktop layout
 
 ## Open Questions
 
@@ -141,8 +141,10 @@ Possibly new:
 
 - **768px breakpoint over 640px:** Tablet users benefit from the mobile layout too — a 768px iPad in portrait doesn't have room for sidebar + editor + synthesis side-by-side. Landscape tablets get the desktop layout.
 - **Push-right over overlay for sidebar:** Overlay hides context and feels like a modal. Push-right keeps spatial awareness — you can see the content shifting, which feels more like rearranging panels than opening a dialog.
-- **Three snap points over two:** Collapsed + peek + expanded gives the user more control. Peek is the "I want to glance at synthesis without losing my editor" state, which is the most common mobile use case.
+- **Three snap points over two:** Collapsed + peek + expanded gives the user more control. Peek is the "I want to glance at synthesis without losing my editor" state, which is the most common mobile use case. *(Revised to four snap points — see [Spec 011](./011-bottom-sheet-gestures.md))*
 - **Both hamburger and swipe-from-edge:** Different users have different muscle memory. Having both costs nothing and prevents frustration.
+- **Custom touch handlers over gesture library:** Resolved open question — custom implementation with `touchstart`/`touchmove`/`touchend` was sufficient. See [ADR-006](../ADR/006-bottom-sheet-velocity-gestures.md).
+- **Bottom sheet gesture rework:** Original snap-to-nearest model was insufficient — users couldn't jump past intermediate states with quick flicks. Reworked in [Spec 011](./011-bottom-sheet-gestures.md) with velocity-based swipe detection and a four-state model.
 
 ## References
 
