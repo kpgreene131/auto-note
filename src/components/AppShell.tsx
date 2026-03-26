@@ -68,7 +68,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div ref={containerRef} className="flex flex-col h-screen">
-      <header className="h-12 border-b border-border flex items-center px-4 gap-2 shrink-0 bg-background">
+      <header className="h-12 border-b border-border flex items-center px-2 md:px-4 gap-2 shrink-0 bg-background">
         <Button
           variant="ghost"
           size="icon-sm"

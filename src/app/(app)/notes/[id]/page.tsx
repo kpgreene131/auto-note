@@ -225,7 +225,7 @@ export default function NotePage({
       </div>
 
       <div className="flex flex-1 min-h-0">
-        <div className={`p-4 overflow-y-auto ${isMobile ? "transition-[height] duration-200 ease-out" : "flex-1"}`} style={{ backgroundColor: "var(--surface-content)", ...(isMobile ? { height: `calc(100dvh - 6rem - ${getSheetHeight(synthesisSheetState)})` } : {}) }}>
+        <div className={`w-full p-4 overflow-y-auto ${isMobile ? "transition-[height] duration-200 ease-out" : "flex-1"}`} style={{ backgroundColor: "var(--surface-content)", ...(isMobile ? { height: `calc(100dvh - 6rem - ${getSheetHeight(synthesisSheetState)})` } : {}) }}>
           <NoteEditor
             noteId={id}
             content={note.content}
