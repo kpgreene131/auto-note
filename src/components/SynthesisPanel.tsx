@@ -209,12 +209,7 @@ export function SynthesisPanel({
 
       {/* Synthesis content */}
       {markdown ? (
-        <div className="relative">
-          {loading && (
-            <div className="absolute top-0 right-0">
-              <span className="inline-block size-2 rounded-full bg-muted-foreground/50 animate-pulse" />
-            </div>
-          )}
+        <div>
           <div className="prose prose-sm dark:prose-invert max-w-none">
             <ReactMarkdown>{markdown}</ReactMarkdown>
           </div>
