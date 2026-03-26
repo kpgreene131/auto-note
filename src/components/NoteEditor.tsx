@@ -14,9 +14,10 @@ interface NoteEditorProps {
   content: unknown
   onSaveStatusChange: (status: SaveStatus) => void
   onSynthesisRequest?: (content: unknown) => void
+  onFocus?: () => void
 }
 
-export function NoteEditor({ noteId, content, onSaveStatusChange, onSynthesisRequest }: NoteEditorProps) {
+export function NoteEditor({ noteId, content, onSaveStatusChange, onSynthesisRequest, onFocus }: NoteEditorProps) {
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const savedClearTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const noteIdRef = useRef(noteId)
@@ -26,6 +27,8 @@ export function NoteEditor({ noteId, content, onSaveStatusChange, onSynthesisReq
   const pendingSynthesisJson = useRef<unknown>(null)
   const onSynthesisRequestRef = useRef(onSynthesisRequest)
   onSynthesisRequestRef.current = onSynthesisRequest
+  const onFocusRef = useRef(onFocus)
+  onFocusRef.current = onFocus
 
   const save = useCallback(async (json: unknown) => {
     onSaveStatusChange("saving")
@@ -43,6 +46,7 @@ export function NoteEditor({ noteId, content, onSaveStatusChange, onSynthesisReq
     extensions: [StarterKit],
     content: content as Parameters<typeof useEditor>[0] extends { content?: infer C } ? C : never,
     immediatelyRender: false,
+    onFocus: () => onFocusRef.current?.(),
     onUpdate: ({ editor }) => {
       if (saveTimeout.current) clearTimeout(saveTimeout.current)
       if (savedClearTimeout.current) clearTimeout(savedClearTimeout.current)

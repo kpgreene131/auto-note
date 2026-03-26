@@ -3,7 +3,7 @@
 import { use, useState, useEffect, useCallback, useRef } from "react"
 import { ChevronRight, ChevronLeft } from "lucide-react"
 import { NoteEditor, type SaveStatus } from "@/components/NoteEditor"
-import { SynthesisPanel } from "@/components/SynthesisPanel"
+import { SynthesisPanel, type BottomSheetState } from "@/components/SynthesisPanel"
 import { Button } from "@/components/ui/button"
 import { useIsMobile } from "@/hooks/useMediaQuery"
 import { fetchNote, updateNote, synthesizeNote } from "@/lib/api"
@@ -26,6 +26,7 @@ export default function NotePage({
   const [synthesisLoading, setSynthesisLoading] = useState(false)
   const [synthesisMarkdown, setSynthesisMarkdown] = useState<string | null>(null)
   const [questionState, setQuestionState] = useState<QuestionState | null>(null)
+  const [sheetState, setSheetState] = useState<BottomSheetState>("collapsed")
   const titleTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const titleClearTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const titleRef = useRef<HTMLDivElement>(null)
@@ -38,6 +39,7 @@ export default function NotePage({
     setSaveStatus("idle")
     setSynthesisMarkdown(null)
     setQuestionState(null)
+    setSheetState("collapsed")
 
     fetchNote(id)
       .then((n) => {
@@ -153,6 +155,20 @@ export default function NotePage({
     setSaveStatus(status)
   }, [])
 
+  // Auto-peek when synthesis starts loading or content exists
+  useEffect(() => {
+    if (isMobile && sheetState === "collapsed" && (synthesisLoading || synthesisMarkdown)) {
+      setSheetState("small")
+    }
+  }, [isMobile, synthesisLoading, synthesisMarkdown, sheetState])
+
+  // Auto-shrink synthesis panel when editor gains focus
+  const handleEditorFocus = useCallback(() => {
+    if (isMobile && sheetState === "full") {
+      setSheetState("large")
+    }
+  }, [isMobile, sheetState])
+
   if (loading) {
     return (
       <div className="flex flex-col h-full">
@@ -222,6 +238,7 @@ export default function NotePage({
             content={note.content}
             onSaveStatusChange={handleEditorSaveStatus}
             onSynthesisRequest={handleSynthesisRequest}
+            onFocus={handleEditorFocus}
           />
         </div>
         <SynthesisPanel
@@ -232,6 +249,8 @@ export default function NotePage({
           question={questionState}
           onQuestionAnswer={handleQuestionAnswer}
           onQuestionDismiss={handleQuestionDismiss}
+          sheetState={sheetState}
+          onSheetStateChange={setSheetState}
         />
       </div>
     </div>
