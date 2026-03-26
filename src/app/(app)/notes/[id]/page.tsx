@@ -3,7 +3,7 @@
 import { use, useState, useEffect, useCallback, useRef } from "react"
 import { ChevronRight, ChevronLeft } from "lucide-react"
 import { NoteEditor, type SaveStatus } from "@/components/NoteEditor"
-import { SynthesisPanel, type BottomSheetState } from "@/components/SynthesisPanel"
+import { SynthesisPanel, type BottomSheetState, getSheetHeight } from "@/components/SynthesisPanel"
 import { Button } from "@/components/ui/button"
 import { useIsMobile } from "@/hooks/useMediaQuery"
 import { fetchNote, updateNote, synthesizeNote } from "@/lib/api"
@@ -229,7 +229,7 @@ export default function NotePage({
       </div>
 
       <div className="flex flex-1 min-h-0">
-        <div className="flex-1 p-4 overflow-y-auto" style={{ backgroundColor: "var(--surface-content)" }}>
+        <div className="flex-1 p-4 overflow-y-auto" style={{ backgroundColor: "var(--surface-content)", paddingBottom: isMobile ? getSheetHeight(sheetState) : undefined }}>
           <NoteEditor
             noteId={id}
             content={note.content}

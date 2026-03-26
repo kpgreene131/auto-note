@@ -31,12 +31,12 @@ const SWIPE_VELOCITY = 0.5 // px/ms threshold
 
 const STATE_ORDER: BottomSheetState[] = ["collapsed", "small", "large", "full"]
 
-function getTranslateY(state: BottomSheetState): string {
+export function getSheetHeight(state: BottomSheetState): string {
   switch (state) {
-    case "collapsed": return `calc(100dvh - ${HANDLE_HEIGHT}px)`
-    case "small":     return `${100 - SMALL_DVH}dvh`
-    case "large":     return `${100 - LARGE_DVH}dvh`
-    case "full":      return `${100 - FULL_DVH}dvh`
+    case "collapsed": return `${HANDLE_HEIGHT}px`
+    case "small":     return `${SMALL_DVH}dvh`
+    case "large":     return `${LARGE_DVH}dvh`
+    case "full":      return `${FULL_DVH}dvh`
   }
 }
 
@@ -58,7 +58,7 @@ export function SynthesisPanel({
   const [showOtherInput, setShowOtherInput] = useState(false)
   const sheetRef = useRef<HTMLDivElement>(null)
   const dragStartY = useRef(0)
-  const dragStartTranslateY = useRef(0)
+  const dragStartHeight = useRef(0)
   const dragStartTime = useRef(0)
   const isDraggingSheet = useRef(false)
 
@@ -115,26 +115,25 @@ export function SynthesisPanel({
     dragStartY.current = touch.clientY
     dragStartTime.current = Date.now()
     isDraggingSheet.current = true
-    // Capture current pixel position of sheet top
+    // Capture current height of sheet
     if (sheetRef.current) {
-      dragStartTranslateY.current = sheetRef.current.getBoundingClientRect().top
+      dragStartHeight.current = sheetRef.current.getBoundingClientRect().height
     }
   }, [])
 
   const handleSheetTouchMove = useCallback((e: React.TouchEvent) => {
     if (!isDraggingSheet.current) return
     const touch = e.touches[0]
-    const dy = touch.clientY - dragStartY.current
+    const dy = touch.clientY - dragStartY.current // positive = finger moved down
     const vh = window.innerHeight
 
-    // Clamp between full position (top) and collapsed position (bottom, handle visible)
-    const fullY = vh * (1 - FULL_DVH / 100)
-    const collapsedY = vh - HANDLE_HEIGHT
-    const newY = Math.max(fullY, Math.min(collapsedY, dragStartTranslateY.current + dy))
+    // Dragging down shrinks sheet, dragging up grows it
+    const maxHeight = vh * (FULL_DVH / 100)
+    const newHeight = Math.max(HANDLE_HEIGHT, Math.min(maxHeight, dragStartHeight.current - dy))
 
     if (sheetRef.current) {
       sheetRef.current.style.transition = "none"
-      sheetRef.current.style.transform = `translateY(${newY}px)`
+      sheetRef.current.style.height = `${newHeight}px`
     }
   }, [])
 
@@ -143,36 +142,36 @@ export function SynthesisPanel({
     isDraggingSheet.current = false
 
     const vh = window.innerHeight
-    const currentY = sheetRef.current?.getBoundingClientRect().top ?? vh
-    const dy = currentY - dragStartTranslateY.current // positive = moved down
+    const currentHeight = sheetRef.current?.getBoundingClientRect().height ?? HANDLE_HEIGHT
+    const heightDelta = currentHeight - dragStartHeight.current // positive = grew (dragged up)
     const dt = Date.now() - dragStartTime.current
-    const velocity = Math.abs(dy) / Math.max(dt, 1)
+    const velocity = Math.abs(heightDelta) / Math.max(dt, 1)
 
     // Reset inline styles so CSS transition animates the final snap
     if (sheetRef.current) {
       sheetRef.current.style.transition = ""
-      sheetRef.current.style.transform = ""
+      sheetRef.current.style.height = ""
     }
 
     if (velocity > SWIPE_VELOCITY && dt < 300) {
       // Swipe: jump 2 states in flick direction
-      const direction = dy < 0 ? 1 : -1 // up = higher index, down = lower
+      const direction = heightDelta > 0 ? 1 : -1 // grew = up = higher index
       const currentIdx = STATE_ORDER.indexOf(sheetState)
       const targetIdx = Math.max(0, Math.min(STATE_ORDER.length - 1, currentIdx + direction * 2))
       onSheetStateChange?.(STATE_ORDER[targetIdx])
     } else {
-      // Drag: snap to nearest breakpoint by pixel distance
-      const snaps: { state: BottomSheetState; y: number }[] = [
-        { state: "collapsed", y: vh - HANDLE_HEIGHT },
-        { state: "small",     y: vh * (1 - SMALL_DVH / 100) },
-        { state: "large",     y: vh * (1 - LARGE_DVH / 100) },
-        { state: "full",      y: vh * (1 - FULL_DVH / 100) },
+      // Drag: snap to nearest breakpoint by height
+      const snaps: { state: BottomSheetState; h: number }[] = [
+        { state: "collapsed", h: HANDLE_HEIGHT },
+        { state: "small",     h: vh * (SMALL_DVH / 100) },
+        { state: "large",     h: vh * (LARGE_DVH / 100) },
+        { state: "full",      h: vh * (FULL_DVH / 100) },
       ]
 
       let nearest = snaps[0]
-      let minDist = Math.abs(currentY - snaps[0].y)
+      let minDist = Math.abs(currentHeight - snaps[0].h)
       for (const snap of snaps) {
-        const dist = Math.abs(currentY - snap.y)
+        const dist = Math.abs(currentHeight - snap.h)
         if (dist < minDist) {
           minDist = dist
           nearest = snap
@@ -294,11 +293,10 @@ export function SynthesisPanel({
     return (
       <div
         ref={sheetRef}
-        className="fixed inset-x-0 top-0 z-40 flex flex-col border-t border-border shadow-lg transition-transform duration-200 ease-out"
+        className="fixed inset-x-0 bottom-0 z-40 flex flex-col border-t border-border shadow-lg transition-[height] duration-200 ease-out"
         style={{
           backgroundColor: "var(--surface-content)",
-          height: "100dvh",
-          transform: `translateY(${getTranslateY(sheetState)})`,
+          height: getSheetHeight(sheetState),
         }}
       >
         {/* Drag handle + peek bar — touch handlers here only */}
