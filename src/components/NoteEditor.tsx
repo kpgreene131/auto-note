@@ -14,10 +14,10 @@ interface NoteEditorProps {
   content: unknown
   onSaveStatusChange: (status: SaveStatus) => void
   onSynthesisRequest?: (content: unknown) => void
-  onFocus?: () => void
+  onActivity?: () => void
 }
 
-export function NoteEditor({ noteId, content, onSaveStatusChange, onSynthesisRequest, onFocus }: NoteEditorProps) {
+export function NoteEditor({ noteId, content, onSaveStatusChange, onSynthesisRequest, onActivity }: NoteEditorProps) {
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const savedClearTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const noteIdRef = useRef(noteId)
@@ -27,8 +27,8 @@ export function NoteEditor({ noteId, content, onSaveStatusChange, onSynthesisReq
   const pendingSynthesisJson = useRef<unknown>(null)
   const onSynthesisRequestRef = useRef(onSynthesisRequest)
   onSynthesisRequestRef.current = onSynthesisRequest
-  const onFocusRef = useRef(onFocus)
-  onFocusRef.current = onFocus
+  const onActivityRef = useRef(onActivity)
+  onActivityRef.current = onActivity
 
   const save = useCallback(async (json: unknown) => {
     onSaveStatusChange("saving")
@@ -50,8 +50,9 @@ export function NoteEditor({ noteId, content, onSaveStatusChange, onSynthesisReq
       scrollThreshold: { top: 100, bottom: 100, left: 0, right: 0 },
       scrollMargin: { top: 20, bottom: 20, left: 0, right: 0 },
     },
-    onFocus: () => onFocusRef.current?.(),
+    onFocus: () => onActivityRef.current?.(),
     onUpdate: ({ editor }) => {
+      onActivityRef.current?.()
       if (saveTimeout.current) clearTimeout(saveTimeout.current)
       if (savedClearTimeout.current) clearTimeout(savedClearTimeout.current)
 

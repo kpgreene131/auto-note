@@ -26,7 +26,7 @@ export default function NotePage({
   const [synthesisLoading, setSynthesisLoading] = useState(false)
   const [synthesisMarkdown, setSynthesisMarkdown] = useState<string | null>(null)
   const [questionState, setQuestionState] = useState<QuestionState | null>(null)
-  const [sheetState, setSheetState] = useState<BottomSheetState>("collapsed")
+  const [synthesisSheetState, setSynthesisSheetState] = useState<BottomSheetState>("collapsed")
   const titleTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const titleClearTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const titleRef = useRef<HTMLDivElement>(null)
@@ -39,7 +39,7 @@ export default function NotePage({
     setSaveStatus("idle")
     setSynthesisMarkdown(null)
     setQuestionState(null)
-    setSheetState("collapsed")
+    setSynthesisSheetState("collapsed")
 
     fetchNote(id)
       .then((n) => {
@@ -155,16 +155,12 @@ export default function NotePage({
     setSaveStatus(status)
   }, [])
 
-  // Auto-peek removed: collapsed now shows the handle bar with
-  // "Synthesizing..." text, so the user has a visible affordance
-  // without being forced out of collapsed state.
-
-  // Auto-shrink synthesis panel when editor gains focus
-  const handleEditorFocus = useCallback(() => {
-    if (isMobile && sheetState === "full") {
-      setSheetState("large")
+  // Shrink synthesis sheet when user interacts with editor (focus or typing)
+  const handleEditorActivity = useCallback(() => {
+    if (isMobile && (synthesisSheetState === "large" || synthesisSheetState === "full")) {
+      setSynthesisSheetState("small")
     }
-  }, [isMobile, sheetState])
+  }, [isMobile, synthesisSheetState])
 
   if (loading) {
     return (
@@ -229,13 +225,13 @@ export default function NotePage({
       </div>
 
       <div className="flex flex-1 min-h-0">
-        <div className={`p-4 overflow-y-auto ${isMobile ? "transition-[height] duration-200 ease-out" : "flex-1"}`} style={{ backgroundColor: "var(--surface-content)", ...(isMobile ? { height: `calc(100dvh - 6rem - ${getSheetHeight(sheetState)})` } : {}) }}>
+        <div className={`p-4 overflow-y-auto ${isMobile ? "transition-[height] duration-200 ease-out" : "flex-1"}`} style={{ backgroundColor: "var(--surface-content)", ...(isMobile ? { height: `calc(100dvh - 6rem - ${getSheetHeight(synthesisSheetState)})` } : {}) }}>
           <NoteEditor
             noteId={id}
             content={note.content}
             onSaveStatusChange={handleEditorSaveStatus}
             onSynthesisRequest={handleSynthesisRequest}
-            onFocus={handleEditorFocus}
+            onActivity={handleEditorActivity}
           />
         </div>
         <SynthesisPanel
@@ -246,8 +242,8 @@ export default function NotePage({
           question={questionState}
           onQuestionAnswer={handleQuestionAnswer}
           onQuestionDismiss={handleQuestionDismiss}
-          sheetState={sheetState}
-          onSheetStateChange={setSheetState}
+          sheetState={synthesisSheetState}
+          onSheetStateChange={setSynthesisSheetState}
         />
       </div>
     </div>
