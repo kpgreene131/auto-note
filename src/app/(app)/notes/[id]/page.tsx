@@ -155,12 +155,9 @@ export default function NotePage({
     setSaveStatus(status)
   }, [])
 
-  // Auto-peek when synthesis starts loading or content exists
-  useEffect(() => {
-    if (isMobile && sheetState === "collapsed" && (synthesisLoading || synthesisMarkdown)) {
-      setSheetState("small")
-    }
-  }, [isMobile, synthesisLoading, synthesisMarkdown, sheetState])
+  // Auto-peek removed: collapsed now shows the handle bar with
+  // "Synthesizing..." text, so the user has a visible affordance
+  // without being forced out of collapsed state.
 
   // Auto-shrink synthesis panel when editor gains focus
   const handleEditorFocus = useCallback(() => {
