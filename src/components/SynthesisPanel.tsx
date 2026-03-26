@@ -26,7 +26,7 @@ const COLLAPSE_THRESHOLD = 100
 const HANDLE_HEIGHT = 48
 const SMALL_DVH = 33
 const LARGE_DVH = 67
-const FULL_DVH = 85
+const FULL_DVH = 100
 const SWIPE_VELOCITY = 0.5 // px/ms threshold
 
 const STATE_ORDER: BottomSheetState[] = ["collapsed", "small", "large", "full"]
@@ -145,20 +145,16 @@ export function SynthesisPanel({
     const currentHeight = sheetRef.current?.getBoundingClientRect().height ?? HANDLE_HEIGHT
     const heightDelta = currentHeight - dragStartHeight.current // positive = grew (dragged up)
     const dt = Date.now() - dragStartTime.current
-    const velocity = Math.abs(heightDelta) / Math.max(dt, 1)
+    const velocity = Math.abs(heightDelta) / Math.max(dt, 16)
 
-    // Reset inline styles so CSS transition animates the final snap
-    if (sheetRef.current) {
-      sheetRef.current.style.transition = ""
-      sheetRef.current.style.height = ""
-    }
+    let targetState: BottomSheetState
 
     if (velocity > SWIPE_VELOCITY && dt < 300) {
       // Swipe: jump 2 states in flick direction
       const direction = heightDelta > 0 ? 1 : -1 // grew = up = higher index
       const currentIdx = STATE_ORDER.indexOf(sheetState)
       const targetIdx = Math.max(0, Math.min(STATE_ORDER.length - 1, currentIdx + direction * 2))
-      onSheetStateChange?.(STATE_ORDER[targetIdx])
+      targetState = STATE_ORDER[targetIdx]
     } else {
       // Drag: snap to nearest breakpoint by height
       const snaps: { state: BottomSheetState; h: number }[] = [
@@ -178,9 +174,27 @@ export function SynthesisPanel({
         }
       }
 
-      onSheetStateChange?.(nearest.state)
+      targetState = nearest.state
     }
+
+    // Set height to target explicitly — clearing with "" would leave
+    // no height between now and React's re-render, causing the sheet
+    // to size to its full content
+    if (sheetRef.current) {
+      sheetRef.current.style.transition = ""
+      sheetRef.current.style.height = getSheetHeight(targetState)
+    }
+
+    onSheetStateChange?.(targetState)
   }, [onSheetStateChange, sheetState])
+
+  const handleSheetTouchCancel = useCallback(() => {
+    isDraggingSheet.current = false
+    if (sheetRef.current) {
+      sheetRef.current.style.transition = ""
+      sheetRef.current.style.height = getSheetHeight(sheetState)
+    }
+  }, [sheetState])
 
   // Shared content rendering
   const renderContent = () => (
@@ -306,6 +320,7 @@ export function SynthesisPanel({
           onTouchStart={handleSheetTouchStart}
           onTouchMove={handleSheetTouchMove}
           onTouchEnd={handleSheetTouchEnd}
+          onTouchCancel={handleSheetTouchCancel}
           onClick={() => {
             if (sheetState === "collapsed") onSheetStateChange?.("small")
             else if (sheetState === "small") onSheetStateChange?.("large")

@@ -46,6 +46,10 @@ export function NoteEditor({ noteId, content, onSaveStatusChange, onSynthesisReq
     extensions: [StarterKit],
     content: content as Parameters<typeof useEditor>[0] extends { content?: infer C } ? C : never,
     immediatelyRender: false,
+    editorProps: {
+      scrollThreshold: { top: 100, bottom: 100, left: 0, right: 0 },
+      scrollMargin: { top: 20, bottom: 20, left: 0, right: 0 },
+    },
     onFocus: () => onFocusRef.current?.(),
     onUpdate: ({ editor }) => {
       if (saveTimeout.current) clearTimeout(saveTimeout.current)
