@@ -33,17 +33,17 @@ Additionally, the original three content states (peek at 48px, small at 33dvh, e
 
 | State | Height | Index |
 |-------|--------|-------|
-| `collapsed` | 0 (off-screen) | 0 |
-| `small` | 30dvh | 1 |
-| `large` | 55dvh | 2 |
+| `collapsed` | handle bar only (48px) | 0 |
+| `small` | 33dvh | 1 |
+| `large` | 67dvh | 2 |
 | `full` | 85dvh | 3 |
 
-The 48px handle bar is always visible in all non-collapsed states. It's a UI element within each state, not a separate state.
+The 48px handle bar is always visible in all states (including collapsed). The sheet is fully hidden only when there's no synthesis content and nothing loading — controlled by the parent, not by a sheet state.
 
 State renames from Spec 010:
-- `peek` (48px bar) → removed as a state; handle bar is always present
-- `small` (33dvh) → `small` (30dvh)
-- `expanded` (67dvh) → split into `large` (55dvh) and `full` (85dvh)
+- `peek` (48px bar) → `collapsed` (handle-bar-only, always visible when synthesis exists)
+- `small` (33dvh) → `small` (33dvh)
+- `expanded` (67dvh) → split into `large` (67dvh) and `full` (85dvh)
 
 ### Gesture Model
 
@@ -58,9 +58,9 @@ State renames from Spec 010:
 - Snaps to **nearest breakpoint** by pixel distance (existing behavior from Spec 010)
 
 **Tap handle bar:**
+- From `collapsed` → `small`
 - From `small` → `large`
 - No tap behavior from `large` or `full` (user drags or swipes instead)
-- `collapsed` state returns null (no rendered handle to tap), auto-peek transitions to `small`
 
 ### Auto Behaviors
 
@@ -97,7 +97,8 @@ None — all resolved during implementation.
 
 - **Velocity-based gesture detection over gesture library:** Custom `touchstart`/`touchmove`/`touchend` with timestamp tracking is sufficient for swipe vs drag detection. Avoids a dependency for a single interaction pattern. See [ADR-006](../ADR/006-bottom-sheet-velocity-gestures.md).
 - **2-state jump for swipes:** A swipe should feel like a decisive action. Jumping 2 states makes swipes distinct from drags (which move 0-1 states). Capping at bounds prevents overshooting.
-- **30/55/85 dvh heights:** 30dvh shows ~3 lines of synthesis (quick glance). 55dvh is a comfortable reading height with editor still visible. 85dvh gives near-full-screen synthesis while keeping the status bar visible.
+- **33/67/85 dvh heights:** 33dvh (~1/3 screen) shows a quick glance of synthesis. 67dvh (~2/3 screen) is a comfortable reading height with editor still visible. 85dvh gives near-full-screen synthesis while keeping the status bar visible.
+- **Collapsed shows handle bar, not hidden:** Users need a persistent affordance to re-open the sheet. Fully hiding it removes the ability to drag back up. The sheet is only truly hidden when there's no synthesis content at all (parent controls this).
 - **300ms max gesture duration:** Prevents slow drags from being misclassified as swipes. A real flick gesture completes in under 300ms.
 
 ## References

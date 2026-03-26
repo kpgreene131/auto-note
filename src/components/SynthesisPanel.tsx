@@ -24,8 +24,8 @@ const DEFAULT_WIDTH = 384 // w-96
 const MIN_WIDTH = 200
 const COLLAPSE_THRESHOLD = 100
 const HANDLE_HEIGHT = 48
-const SMALL_DVH = 30
-const LARGE_DVH = 55
+const SMALL_DVH = 33
+const LARGE_DVH = 67
 const FULL_DVH = 85
 const SWIPE_VELOCITY = 0.5 // px/ms threshold
 
@@ -33,7 +33,7 @@ const STATE_ORDER: BottomSheetState[] = ["collapsed", "small", "large", "full"]
 
 function getTranslateY(state: BottomSheetState): string {
   switch (state) {
-    case "collapsed": return "100dvh"
+    case "collapsed": return `calc(100dvh - ${HANDLE_HEIGHT}px)`
     case "small":     return `${100 - SMALL_DVH}dvh`
     case "large":     return `${100 - LARGE_DVH}dvh`
     case "full":      return `${100 - FULL_DVH}dvh`
@@ -127,9 +127,10 @@ export function SynthesisPanel({
     const dy = touch.clientY - dragStartY.current
     const vh = window.innerHeight
 
-    // Clamp between full position (top) and fully off-screen (bottom)
+    // Clamp between full position (top) and collapsed position (bottom, handle visible)
     const fullY = vh * (1 - FULL_DVH / 100)
-    const newY = Math.max(fullY, Math.min(vh, dragStartTranslateY.current + dy))
+    const collapsedY = vh - HANDLE_HEIGHT
+    const newY = Math.max(fullY, Math.min(collapsedY, dragStartTranslateY.current + dy))
 
     if (sheetRef.current) {
       sheetRef.current.style.transition = "none"
@@ -162,7 +163,7 @@ export function SynthesisPanel({
     } else {
       // Drag: snap to nearest breakpoint by pixel distance
       const snaps: { state: BottomSheetState; y: number }[] = [
-        { state: "collapsed", y: vh },
+        { state: "collapsed", y: vh - HANDLE_HEIGHT },
         { state: "small",     y: vh * (1 - SMALL_DVH / 100) },
         { state: "large",     y: vh * (1 - LARGE_DVH / 100) },
         { state: "full",      y: vh * (1 - FULL_DVH / 100) },
@@ -287,7 +288,8 @@ export function SynthesisPanel({
 
   // --- Mobile bottom sheet ---
   if (isMobile) {
-    if (sheetState === "collapsed") return null
+    // Fully hidden only when there's no synthesis content and nothing loading
+    if (!markdown && !loading) return null
 
     return (
       <div
@@ -307,7 +309,8 @@ export function SynthesisPanel({
           onTouchMove={handleSheetTouchMove}
           onTouchEnd={handleSheetTouchEnd}
           onClick={() => {
-            if (sheetState === "small") onSheetStateChange?.("large")
+            if (sheetState === "collapsed") onSheetStateChange?.("small")
+            else if (sheetState === "small") onSheetStateChange?.("large")
           }}
         >
           <div className="w-10 h-1 rounded-full bg-muted-foreground/30 absolute top-2" />
@@ -320,9 +323,11 @@ export function SynthesisPanel({
         </div>
 
         {/* Scrollable content — visible in small, large, and full states */}
-        <div className="flex-1 min-h-0 p-4 overflow-y-auto">
-          {renderContent()}
-        </div>
+        {sheetState !== "collapsed" && (
+          <div className="flex-1 min-h-0 p-4 overflow-y-auto">
+            {renderContent()}
+          </div>
+        )}
       </div>
     )
   }
