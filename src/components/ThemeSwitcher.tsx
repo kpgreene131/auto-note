@@ -71,7 +71,7 @@ export function ThemeSwitcher() {
         onClick={() => setOpen(!open)}
         aria-label="Change theme"
       >
-        <Palette className="size-5 md:size-4" />
+        <Palette className="size-6 md:size-4" />
       </Button>
 
       {open && (

@@ -71,7 +71,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           className="md:size-8 size-11"
         >
           {isMobile ? (
-            <Menu className="size-5" />
+            <Menu className="size-6" />
           ) : sidebarCollapsed ? (
             <PanelLeftOpen className="size-4" />
           ) : (
