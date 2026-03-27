@@ -225,7 +225,8 @@ export default function NotePage({
       </div>
 
       <div className="flex flex-col flex-1 min-h-0">
-        <div className="w-full p-4 overflow-y-auto flex-1 min-h-0" style={{ backgroundColor: "var(--surface-content)" }}>
+        <div className="w-full overflow-y-auto flex-1 min-h-0" style={{ backgroundColor: "var(--surface-content)" }}>
+          <div className="p-4">
           <NoteEditor
             noteId={id}
             content={note.content}
@@ -233,6 +234,7 @@ export default function NotePage({
             onSynthesisRequest={handleSynthesisRequest}
             onActivity={handleEditorActivity}
           />
+          </div>
         </div>
         <SynthesisPanel
           markdown={synthesisMarkdown}
