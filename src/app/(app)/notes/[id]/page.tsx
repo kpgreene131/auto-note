@@ -225,7 +225,7 @@ export default function NotePage({
       </div>
 
       <div className="flex flex-col flex-1 min-h-0">
-        <div className={`w-full p-4 overflow-y-auto flex-1 min-h-0 ${synthesisSheetState === "full" && isMobile ? "hidden" : ""}`} style={{ backgroundColor: "var(--surface-content)" }}>
+        <div className="w-full p-4 overflow-y-auto flex-1 min-h-0" style={{ backgroundColor: "var(--surface-content)" }}>
           <NoteEditor
             noteId={id}
             content={note.content}

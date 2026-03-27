@@ -305,7 +305,7 @@ export function SynthesisPanel({
     return (
       <div
         ref={sheetRef}
-        className="shrink-0 flex flex-col border-t border-border shadow-lg transition-[height] duration-150 ease-out"
+        className="relative shrink-0 flex flex-col border-t border-border shadow-lg transition-[height] duration-150 ease-out overflow-hidden"
         style={{
           backgroundColor: "var(--surface-content)",
           height: getSheetHeight(sheetState),
@@ -333,12 +333,10 @@ export function SynthesisPanel({
           </span>
         </div>
 
-        {/* Scrollable content — visible in small, large, and full states */}
-        {sheetState !== "collapsed" && (
-          <div className="flex-1 min-h-0 p-4 overflow-y-auto">
-            {renderContent()}
-          </div>
-        )}
+        {/* Scrollable content — clipped by overflow-hidden when collapsed */}
+        <div className="flex-1 min-h-0 p-4 overflow-y-auto">
+          {renderContent()}
+        </div>
       </div>
     )
   }
