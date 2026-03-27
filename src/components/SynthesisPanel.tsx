@@ -36,7 +36,7 @@ export function getSheetHeight(state: BottomSheetState): string {
     case "collapsed": return `${HANDLE_HEIGHT}px`
     case "small":     return `${SMALL_DVH}dvh`
     case "large":     return `${LARGE_DVH}dvh`
-    case "full":      return `${FULL_DVH}dvh`
+    case "full":      return "100%"
   }
 }
 
@@ -125,10 +125,11 @@ export function SynthesisPanel({
     if (!isDraggingSheet.current) return
     const touch = e.touches[0]
     const dy = touch.clientY - dragStartY.current // positive = finger moved down
-    const vh = window.innerHeight
+
+    // Max height is the flex container, not the full viewport
+    const maxHeight = sheetRef.current?.parentElement?.getBoundingClientRect().height ?? window.innerHeight
 
     // Dragging down shrinks sheet, dragging up grows it
-    const maxHeight = vh * (FULL_DVH / 100)
     const newHeight = Math.max(HANDLE_HEIGHT, Math.min(maxHeight, dragStartHeight.current - dy))
 
     if (sheetRef.current) {
@@ -141,7 +142,7 @@ export function SynthesisPanel({
     if (!isDraggingSheet.current) return
     isDraggingSheet.current = false
 
-    const vh = window.innerHeight
+    const containerHeight = sheetRef.current?.parentElement?.getBoundingClientRect().height ?? window.innerHeight
     const currentHeight = sheetRef.current?.getBoundingClientRect().height ?? HANDLE_HEIGHT
     const heightDelta = currentHeight - dragStartHeight.current // positive = grew (dragged up)
     const dt = Date.now() - dragStartTime.current
@@ -157,11 +158,13 @@ export function SynthesisPanel({
       targetState = STATE_ORDER[targetIdx]
     } else {
       // Drag: snap to nearest breakpoint by height
+      // Use container height for "full" since it's 100% of the flex parent, not the viewport
+      const vh = window.innerHeight
       const snaps: { state: BottomSheetState; h: number }[] = [
         { state: "collapsed", h: HANDLE_HEIGHT },
         { state: "small",     h: vh * (SMALL_DVH / 100) },
         { state: "large",     h: vh * (LARGE_DVH / 100) },
-        { state: "full",      h: vh * (FULL_DVH / 100) },
+        { state: "full",      h: containerHeight },
       ]
 
       let nearest = snaps[0]
@@ -302,7 +305,7 @@ export function SynthesisPanel({
     return (
       <div
         ref={sheetRef}
-        className="fixed inset-x-0 bottom-0 z-40 flex flex-col border-t border-border shadow-lg transition-[height] duration-200 ease-out"
+        className="shrink-0 flex flex-col border-t border-border shadow-lg transition-[height] duration-150 ease-out"
         style={{
           backgroundColor: "var(--surface-content)",
           height: getSheetHeight(sheetState),
@@ -311,7 +314,7 @@ export function SynthesisPanel({
         {/* Drag handle + peek bar — touch handlers here only */}
         <div
           className="flex items-center justify-center px-4 shrink-0 cursor-grab active:cursor-grabbing"
-          style={{ height: HANDLE_HEIGHT }}
+          style={{ height: HANDLE_HEIGHT, touchAction: "none" }}
           onTouchStart={handleSheetTouchStart}
           onTouchMove={handleSheetTouchMove}
           onTouchEnd={handleSheetTouchEnd}

@@ -31,20 +31,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
   }, [pathname, isMobile])
 
-  // Swipe from left edge to open sidebar
-  useSwipeGesture(containerRef, {
-    direction: "horizontal",
-    edgeZone: 20,
-    threshold: 50,
-    enabled: isMobile && !mobileSidebarOpen,
-    onSwipe: useCallback(
-      (dir: string) => {
-        if (dir === "right") setMobileSidebarOpen(true)
-      },
-      []
-    ),
-  })
-
   // Swipe left anywhere to close sidebar
   useSwipeGesture(containerRef, {
     direction: "horizontal",
@@ -67,7 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div ref={containerRef} className="flex flex-col h-screen">
+    <div ref={containerRef} className="flex flex-col h-[100dvh]">
       <header className="h-12 border-b border-border flex items-center px-2 md:px-4 gap-2 shrink-0 bg-background">
         <Button
           variant="ghost"
