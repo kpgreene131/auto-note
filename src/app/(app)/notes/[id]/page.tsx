@@ -3,7 +3,7 @@
 import { use, useState, useEffect, useCallback, useRef } from "react"
 import { ChevronRight, ChevronLeft } from "lucide-react"
 import { NoteEditor, type SaveStatus } from "@/components/NoteEditor"
-import { SynthesisPanel, type BottomSheetState, getSheetHeight } from "@/components/SynthesisPanel"
+import { SynthesisPanel, type BottomSheetState } from "@/components/SynthesisPanel"
 import { Button } from "@/components/ui/button"
 import { useIsMobile } from "@/hooks/useMediaQuery"
 import { fetchNote, updateNote, synthesizeNote } from "@/lib/api"
@@ -224,8 +224,9 @@ export default function NotePage({
         )}
       </div>
 
-      <div className="flex flex-1 min-h-0">
-        <div className={`w-full p-4 overflow-y-auto ${isMobile ? "transition-[height] duration-200 ease-out" : "flex-1"}`} style={{ backgroundColor: "var(--surface-content)", ...(isMobile ? { height: `calc(100dvh - 6rem - ${getSheetHeight(synthesisSheetState)})` } : {}) }}>
+      <div className="flex flex-col flex-1 min-h-0">
+        <div className="w-full overflow-y-auto flex-1 min-h-0" style={{ backgroundColor: "var(--surface-content)" }}>
+          <div className="p-4">
           <NoteEditor
             noteId={id}
             content={note.content}
@@ -233,6 +234,7 @@ export default function NotePage({
             onSynthesisRequest={handleSynthesisRequest}
             onActivity={handleEditorActivity}
           />
+          </div>
         </div>
         <SynthesisPanel
           markdown={synthesisMarkdown}
